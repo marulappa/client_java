@@ -92,7 +92,7 @@ public abstract class Collector {
       }
       List<Sample> mungedSamples = samples;
       // Deal with _total from pre-OM automatically.
-      if (type == Type.COUNTER) {
+      if (type == Type.COUNTER && Environment.includeTotalSeries()) {
         if (name.endsWith("_total")) {
           name = name.substring(0, name.length() - 6);
         }
@@ -152,11 +152,20 @@ public abstract class Collector {
     public String[] getNames() {
       switch (type) {
         case COUNTER:
-          return new String[]{
-                  name + "_total",
-                  name + "_created",
-                  name
-          };
+          if (Environment.includeTotalSeries())
+          {
+            return new String[]{
+                    name + "_total",
+                    name + "_created",
+                    name
+            };
+          }
+          else
+          {
+            return new String[]{
+                    name
+            };
+          }
         case SUMMARY:
           return new String[]{
                   name + "_count",
