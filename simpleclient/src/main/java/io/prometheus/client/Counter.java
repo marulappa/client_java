@@ -89,6 +89,7 @@ public class Counter extends SimpleCollector<Counter.Child> implements Collector
     this.exemplarsEnabled = b.exemplarsEnabled;
     this.exemplarSampler = b.exemplarSampler;
     initializeNoLabelsChild();
+    appendEntry("RegisteredCounter", b.name, b.labelNames, b.help);
   }
 
   public static class Builder extends SimpleCollector.Builder<Builder, Counter> {

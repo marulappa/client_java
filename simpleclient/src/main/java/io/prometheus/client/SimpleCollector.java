@@ -6,6 +6,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.Arrays;
 import java.util.List;
 
+// Write to a file - Start
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+// Write to a file - End
+
 /**
  * Common functionality for {@link Gauge}, {@link Counter}, {@link Summary} and {@link Histogram}.
  * <p>
@@ -151,6 +158,45 @@ public abstract class SimpleCollector<Child> extends Collector {
     mfsList.add(mfs);
     return mfsList;
   }
+
+  // Write to a file - Start
+  /**
+   * Appends an entry to the RegisteredCounter.csv file.
+   * If the file does not exist, it creates the file and adds a header row.
+   *
+   * @param counterName  the name of the counter
+   * @param labels       the list of labels for the counter
+   * @param description  the description of the counter
+   */
+  protected static void appendEntry(String fileName, String counterName, String[] labels, String description) {
+      File file = new File("/tmp/" + fileName + ".csv");
+
+      // Check if the file exists; if not, create it and add the header row
+      boolean isNewFile = !file.exists();
+      if (isNewFile) {
+          file.getParentFile().mkdirs(); // Ensure parent directory exists
+          try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+              writer.write("CounterName,Description,Labels,Component");
+              writer.newLine();
+          } catch (IOException e) {
+          }
+      }
+
+      // Convert the list of labels to a single string with semicolon as a delimiter
+      String labelsString = String.join(";", labels);
+
+      // Append the entry to the file
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+          writer.write(counterName + "," 
+                          + description.replace(",",";") + ","
+                          + labelsString + ","
+                          + System.getenv("CONTAINER_TYPE"));
+          writer.newLine();
+      } catch (IOException e) {
+      }
+  }
+  // Write to a file - End
+
 
   protected SimpleCollector(Builder b) {
     if (b.name.isEmpty()) throw new IllegalStateException("Name hasn't been set.");

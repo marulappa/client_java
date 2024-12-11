@@ -67,6 +67,7 @@ public class Gauge extends SimpleCollector<Gauge.Child> implements Collector.Des
 
   Gauge(Builder b) {
     super(b);
+    appendEntry("RegisteredGauge", b.name, b.labelNames, b.help);
   }
 
   public static class Builder extends SimpleCollector.Builder<Builder, Gauge> {
